@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 
-import 'mvvm/view/view.dart';
+import 'mvvm/view/generate_view.dart';
 
 class QrApp extends StatelessWidget {
   const QrApp({super.key});
