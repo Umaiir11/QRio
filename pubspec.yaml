@@ -40,6 +40,7 @@ dependencies:
   fluttertoast: ^8.2.2
   esys_flutter_share_plus: ^2.2.0
   shimmer: ^3.0.0
+  flutter_screenutil: ^5.9.0
   get:
 
 dev_dependencies:
