@@ -82,7 +82,8 @@ class _QRViewExampleState extends State<QRViewExample> {
                 ),
               ),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
                   if (result != null)
                     Padding(
@@ -92,8 +93,6 @@ class _QRViewExampleState extends State<QRViewExample> {
                             // Copy the text to the clipboard
                             await Clipboard.setData(ClipboardData(
                                 text: 'Result: ${describeEnum(result!.format)}   Data: ${result?.code}'));
-
-                            // Optional: Show a snackbar to confirm copying
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text('Copied!'),
@@ -220,11 +219,8 @@ class _QRViewExampleState extends State<QRViewExample> {
   }
 
   Widget _buildQrView(BuildContext context) {
-    // For this example we check how width or tall the device is and change the scanArea and overlay accordingly.
     var scanArea =
         (MediaQuery.of(context).size.width < 400 || MediaQuery.of(context).size.height < 400) ? 340.h : 400.0;
-    // To ensure the Scanner view is properly sizes after rotation
-    // we need to listen for Flutter SizeChanged notification and update controller
     return QRView(
       key: qrKey,
       onQRViewCreated: _onQRViewCreated,
@@ -232,7 +228,7 @@ class _QRViewExampleState extends State<QRViewExample> {
           borderColor: Colors.cyanAccent,
           borderRadius: 10,
           borderLength: 30,
-          borderWidth: 10,
+          borderWidth: 7,
           cutOutSize: scanArea),
       onPermissionSet: (ctrl, p) => _onPermissionSet(context, ctrl, p),
     );

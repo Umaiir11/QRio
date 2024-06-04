@@ -19,7 +19,9 @@ class QrApp extends StatelessWidget {
         return GetMaterialApp(
           debugShowCheckedModeBanner: false,
           title: 'QR Code App',
-          theme: ThemeData.dark(),
+          theme: ThemeData.dark(
+            useMaterial3:  true
+          ),
           home: QrScreen(),
         );
       },
