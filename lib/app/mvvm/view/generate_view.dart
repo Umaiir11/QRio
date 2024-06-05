@@ -197,7 +197,7 @@ class QrScreen extends StatelessWidget {
                           height: 50.h,
                           child: ElevatedButton(
                             onPressed: () async {
-                              Get.to(() => QRViewExample());
+                              Get.to(() => ScanView());
                             },
                             style: ElevatedButton.styleFrom(
                               shape: RoundedRectangleBorder(

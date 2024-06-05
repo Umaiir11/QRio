@@ -1,41 +1,17 @@
-import 'package:flutter/cupertino.dart';
-import 'dart:developer';
-import 'dart:io';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
-import 'package:shimmer/shimmer.dart';
-import 'package:shimmer/shimmer.dart';
 
-class QRViewExample extends StatefulWidget {
-  const QRViewExample({Key? key}) : super(key: key);
+import '../view_model/qr_scanner_controller.dart';
 
-  @override
-  State<StatefulWidget> createState() => _QRViewExampleState();
-}
-
-class _QRViewExampleState extends State<QRViewExample> {
-  Barcode? result;
-  QRViewController? controller;
-  final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
-
-  // In order to get hot reload to work we need to pause the camera if the platform
-  // is android, or resume the camera if the platform is iOS.
-  @override
-  void reassemble() {
-    super.reassemble();
-    if (Platform.isAndroid) {
-      controller!.pauseCamera();
-    }
-    controller!.resumeCamera();
-  }
-
+class ScanView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final QRController qrController = Get.put(QRController());
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
@@ -82,31 +58,21 @@ class _QRViewExampleState extends State<QRViewExample> {
                 ),
               ),
               child: Column(
-                //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
-                  if (result != null)
-                    Padding(
+                  Obx(
+                        () => qrController.result.value != null
+                        ? Padding(
                         padding: EdgeInsets.all(15.h),
                         child: GestureDetector(
-                          onLongPress: () async {
-                            // Copy the text to the clipboard
-                            await Clipboard.setData(ClipboardData(
-                                text: 'Result: ${describeEnum(result!.format)}   Data: ${result?.code}'));
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Copied!'),
-                                duration: Duration(seconds: 1),
-                              ),
-                            );
-                          },
+                          onLongPress: qrController.copyToClipboard,
                           child: SelectableText(
-                            'Result:${result?.code}',
-                            style: TextStyle(fontSize: 16), // Adjust font size as needed
+                            'Result: ${qrController.result.value?.code}',
+                            style: TextStyle(
+                                fontSize: 16), // Adjust font size as needed
                           ),
                         ))
-                  else
-                    Padding(
+                        : Padding(
                         padding: EdgeInsets.all(15.h),
                         child: Shimmer.fromColors(
                           baseColor: Colors.white,
@@ -120,6 +86,7 @@ class _QRViewExampleState extends State<QRViewExample> {
                             ),
                           ),
                         )),
+                  ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -127,50 +94,32 @@ class _QRViewExampleState extends State<QRViewExample> {
                       Container(
                         margin: const EdgeInsets.all(8),
                         child: ElevatedButton(
-                            onPressed: () async {
-                              await controller?.toggleFlash();
-                              setState(() {});
-                            },
+                            onPressed: qrController.toggleFlash,
                             style: ElevatedButton.styleFrom(
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(30),
                               ),
                               backgroundColor: Colors.cyanAccent,
                             ),
-                            child: FutureBuilder(
-                              future: controller?.getFlashStatus(),
-                              builder: (context, snapshot) {
-                                return Text(
-                                  'Flash: ${snapshot.data}',
-                                  style: TextStyle(color: Colors.black),
-                                );
-                              },
-                            )),
+                            child: Text(
+                                'Flash',
+                                style:
+                                TextStyle(color: Colors.black))),
                       ),
                       Container(
                         margin: const EdgeInsets.all(8),
                         child: ElevatedButton(
-                            onPressed: () async {
-                              await controller?.flipCamera();
-                              setState(() {});
-                            },
+                            onPressed: qrController.flipCamera,
                             style: ElevatedButton.styleFrom(
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(30),
                               ),
                               backgroundColor: Colors.cyanAccent,
                             ),
-                            child: FutureBuilder(
-                              future: controller?.getCameraInfo(),
-                              builder: (context, snapshot) {
-                                if (snapshot.data != null) {
-                                  return Text('Camera facing ${describeEnum(snapshot.data!)}',
-                                      style: TextStyle(color: Colors.black));
-                                } else {
-                                  return const Text('loading');
-                                }
-                              },
-                            )),
+                            child:Text(
+                                'Camera Switch',
+                                style:
+                                TextStyle(color: Colors.black))),
                       )
                     ],
                   ),
@@ -180,31 +129,29 @@ class _QRViewExampleState extends State<QRViewExample> {
                     children: <Widget>[
                       Container(
                         child: ElevatedButton(
-                          onPressed: () async {
-                            await controller?.pauseCamera();
-                          },
+                          onPressed: qrController.pauseCamera,
                           style: ElevatedButton.styleFrom(
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(30),
                             ),
                             backgroundColor: Colors.cyanAccent,
                           ),
-                          child: Text('pause', style: TextStyle(color: Colors.black)),
+                          child: Text('pause',
+                              style: TextStyle(color: Colors.black)),
                         ),
                       ),
                       Container(
                         margin: EdgeInsets.all(28.h),
                         child: ElevatedButton(
-                          onPressed: () async {
-                            await controller?.resumeCamera();
-                          },
+                          onPressed: qrController.resumeCamera,
                           style: ElevatedButton.styleFrom(
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(30),
                             ),
                             backgroundColor: Colors.cyanAccent,
                           ),
-                          child: Text('resume', style: TextStyle(color: Colors.black)),
+                          child: Text('resume',
+                              style: TextStyle(color: Colors.black)),
                         ),
                       )
                     ],
@@ -219,44 +166,22 @@ class _QRViewExampleState extends State<QRViewExample> {
   }
 
   Widget _buildQrView(BuildContext context) {
-    var scanArea =
-        (MediaQuery.of(context).size.width < 400 || MediaQuery.of(context).size.height < 400) ? 340.h : 400.0;
+    final QRController qrController = Get.find<QRController>();
+    var scanArea = (MediaQuery.of(context).size.width < 400 ||
+        MediaQuery.of(context).size.height < 400)
+        ? 340.h
+        : 400.0;
     return QRView(
-      key: qrKey,
-      onQRViewCreated: _onQRViewCreated,
+      key: qrController.qrKey,
+      onQRViewCreated: qrController.onQRViewCreated,
       overlay: QrScannerOverlayShape(
           borderColor: Colors.cyanAccent,
           borderRadius: 10,
           borderLength: 30,
           borderWidth: 7,
           cutOutSize: scanArea),
-      onPermissionSet: (ctrl, p) => _onPermissionSet(context, ctrl, p),
+      onPermissionSet: (ctrl, p) =>
+          qrController.onPermissionSet(context, ctrl, p),
     );
-  }
-
-  void _onQRViewCreated(QRViewController controller) {
-    setState(() {
-      this.controller = controller;
-    });
-    controller.scannedDataStream.listen((scanData) {
-      setState(() {
-        result = scanData;
-      });
-    });
-  }
-
-  void _onPermissionSet(BuildContext context, QRViewController ctrl, bool p) {
-    log('${DateTime.now().toIso8601String()}_onPermissionSet $p');
-    if (!p) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('no Permission')),
-      );
-    }
-  }
-
-  @override
-  void dispose() {
-    controller?.dispose();
-    super.dispose();
   }
 }
