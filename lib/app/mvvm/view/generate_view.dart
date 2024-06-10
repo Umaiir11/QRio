@@ -154,7 +154,7 @@ class QrScreen extends StatelessWidget {
                           backgroundColor: Colors.cyanAccent,
                         ),
                         child: Text(
-                          "Generate",
+                          "Save",
                           style: TextStyle(
                             fontSize: 15,
                             color: Colors.black,
